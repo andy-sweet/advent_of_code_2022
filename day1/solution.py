@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Generator, Iterable, List
-from heapq import heappop, heappush
+from heapq import heappushpop
 
 # Implementation
 
@@ -17,11 +17,13 @@ def read_elf_item_calories(path: Path) -> Generator[List[int], None, None]:
     yield elf_item_calories
 
 def max_elf_calories(elf_item_calories: Iterable[List[int]]) -> int:
-    return max(sum(item) for item in elf_item_calories)
+    return max(sum(elf) for elf in elf_item_calories)
 
-def top_three_elf_calories(elf_item_calories: Iterable[List[int]]) -> int:
-    return sum(sorted(sum(item) for item in elf_item_calories)[-3:])
-
+def top_three_elf_calories(elf_item_calories: Iterable[List[int]]) -> List[int]:
+    top_three = [0] * 3
+    for elf in map(sum, elf_item_calories):
+        heappushpop(top_three, elf)
+    return top_three
 
 # Tests
 
@@ -42,8 +44,8 @@ def test_max_elf_calories():
     actual = max_elf_calories(TEST_ELF_ITEM_CALORIES)
     assert actual == 24000
 
-def test_top_three_calories():
-    actual = top_three_elf_calories(TEST_ELF_ITEM_CALORIES)
+def test_sum_top_three_calories():
+    actual = sum(top_three_elf_calories(TEST_ELF_ITEM_CALORIES))
     assert actual == 45000
 
 # The real deal
@@ -51,8 +53,9 @@ def test_top_three_calories():
 def main():
     path = Path('input.txt')
     elf_item_calories = read_elf_item_calories(path)
-    print(f'part 1: {max_elf_calories(elf_item_calories)}')
-    print(f'part 2: {top_three_elf_calories(elf_item_calories)}')
+    top_three_elf_cals = top_three_elf_calories(elf_item_calories)
+    print(f'part 1: {top_three_elf_cals[-1]}')
+    print(f'part 2: {sum(top_three_elf_cals)}')
 
 if __name__ == '__main__':
     main()
