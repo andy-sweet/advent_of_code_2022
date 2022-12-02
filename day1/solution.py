@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import List
 from heapq import heappop, heappush
 
+# Implementation
+
 def read_elf_item_calories(path: Path) -> List[List[int]]:
     elf_item_calories = [[]]
     with open(path) as f:
@@ -18,6 +20,9 @@ def max_elf_calories(elf_item_calories: List[List[int]]) -> int:
 
 def top_three_elf_calories(elf_item_calories: List[List[int]]) -> int:
     return sum(sorted(sum(item) for item in elf_item_calories)[-3:])
+
+
+# Tests
 
 TEST_ELF_ITEM_CALORIES = [
     [1000, 2000, 3000],
