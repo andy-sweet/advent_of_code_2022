@@ -5,14 +5,14 @@ def max_elf_calories(elf_item_calories: List[List[int]]) -> int:
     return max(sum(item) for item in elf_item_calories)
 
 def read_elf_item_calories(path: Path) -> List[List[int]]:
-    with open(path) as f:
-        lines = f.read().splitlines()
     elf_item_calories = [[]]
-    for item in lines:
-        if item == '':
-            elf_item_calories.append([])
-        else:
-            elf_item_calories[-1].append(int(item))
+    with open(path) as f:
+        for line in f:
+            item = line.rstrip()
+            if item == '':
+                elf_item_calories.append([])
+            else:
+                elf_item_calories[-1].append(int(item))
     return elf_item_calories
 
 TEST_ELF_ITEM_CALORIES = [
