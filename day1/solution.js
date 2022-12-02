@@ -22,11 +22,11 @@ async function* readElfCalories(path) {
 
 async function main() {
   const cals = readElfCalories('input.txt');
-  let max_cals = -Infinity
+  let maxCals = -Infinity
   for await (const cal of cals) {
-    max_cals = Math.max(cal, max_cals)
+    maxCals = Math.max(cal, maxCals)
   }
-  console.log(`max_cals: ${max_cals}`);
+  console.log(`max_cals: ${maxCals}`);
 }
 
 main();
