@@ -45,6 +45,8 @@ def test_top_three_calories():
     actual = top_three_elf_calories(TEST_ELF_ITEM_CALORIES)
     assert actual == 45000
 
+# The real deal
+
 def main():
     path = Path('input.txt')
     elf_item_calories = read_elf_item_calories(path)
