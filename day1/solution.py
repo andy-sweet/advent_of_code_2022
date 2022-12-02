@@ -1,24 +1,25 @@
 from pathlib import Path
-from typing import List
+from typing import Generator, Iterable, List
 from heapq import heappop, heappush
 
 # Implementation
 
-def read_elf_item_calories(path: Path) -> List[List[int]]:
-    elf_item_calories = [[]]
+def read_elf_item_calories(path: Path) -> Generator[List[int], None, None]:
+    elf_item_calories = []
     with open(path) as f:
         for line in f:
             item = line.rstrip()
             if item == '':
-                elf_item_calories.append([])
+                yield list(elf_item_calories)
+                elf_item_calories.clear()
             else:
-                elf_item_calories[-1].append(int(item))
-    return elf_item_calories
+                elf_item_calories.append(int(item))
+    yield elf_item_calories
 
-def max_elf_calories(elf_item_calories: List[List[int]]) -> int:
+def max_elf_calories(elf_item_calories: Iterable[List[int]]) -> int:
     return max(sum(item) for item in elf_item_calories)
 
-def top_three_elf_calories(elf_item_calories: List[List[int]]) -> int:
+def top_three_elf_calories(elf_item_calories: Iterable[List[int]]) -> int:
     return sum(sorted(sum(item) for item in elf_item_calories)[-3:])
 
 
@@ -34,7 +35,7 @@ TEST_ELF_ITEM_CALORIES = [
 
 def test_read_elf_item_calories():
     path = Path('test_input.txt')
-    actual = read_elf_item_calories(path)
+    actual = list(read_elf_item_calories(path))
     assert actual == TEST_ELF_ITEM_CALORIES
 
 def test_max_elf_calories():
