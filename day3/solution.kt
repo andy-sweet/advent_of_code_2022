@@ -9,7 +9,7 @@ fun itemPriority(item: Char): Int {
 
 fun sharedItem(rucksack: String): Char {
     return rucksack
-        .chunked(rucksack.length / 2, {c -> c.toSet()})
+        .chunked(rucksack.length / 2, CharSequence::toSet)
         .reduce {a, b -> a.intersect(b)}
         .single()
 }
