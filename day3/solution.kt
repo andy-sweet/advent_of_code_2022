@@ -7,16 +7,17 @@ fun itemPriority(item: Char): Int {
     return item.code - offset
 }
 
-fun priority(rucksack: String): Int {
-    val midPoint = rucksack.length / 2
-    val compartments = rucksack.chunked(midPoint, {c -> c.toSet()})
-    val sharedItem = compartments[0].intersect(compartments[1]).single()
-    return itemPriority(sharedItem)
+fun sharedItem(rucksack: String): Char {
+    return rucksack
+        .chunked(rucksack.length / 2, {c -> c.toSet()})
+        .reduce {a, b -> a.intersect(b)}
+        .single()
 }
 
 fun prioritySum(filePath: String): Int {
     return File(filePath).useLines {lines -> lines
-        .map {r -> priority(r)}
+        .map {rucksack -> sharedItem(rucksack)}
+        .map {item -> itemPriority(item)}
         .sum()
     }
 }
