@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 from typing import Generator, Iterable, Tuple
+
+THIS_DIR = Path(os.path.realpath(__file__)).parent
 
 # Implementation
 
@@ -15,8 +18,8 @@ OUTCOME_SCORE = {
     ('A', 'Y'): 6, # rock, paper
     ('A', 'Z'): 0, # rock, scissors
     ('B', 'X'): 0, # paper, rock
-    ('B', 'Y'): 6, # paper, scissors
-    ('B', 'Z'): 3, # paper, paper
+    ('B', 'Y'): 3, # paper, paper
+    ('B', 'Z'): 6, # paper, scissors
     ('C', 'X'): 6, # scissors, rock
     ('C', 'Y'): 0, # scissors, paper
     ('C', 'Z'): 3, # scissors, scissors
@@ -45,6 +48,20 @@ def test_total_score():
     assert total_score(TEST_STRATEGY) == 15
 
 def test_read_strategy():
-    path = Path('test_input.txt')
+    path = THIS_DIR / 'test_input.txt'
     actual = tuple(read_strategy(path))
     assert actual == TEST_STRATEGY
+
+# Main
+
+def part1():
+    path = THIS_DIR / 'input.txt'
+    strategy = read_strategy(path)
+    score = total_score(strategy)
+    print(f'part1: {score}')
+
+def main():
+    part1()
+
+if __name__ == '__main__':
+    main()
