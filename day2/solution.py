@@ -1,4 +1,7 @@
-from typing import Dict, Tuple
+from pathlib import Path
+from typing import Generator, Iterable, Tuple
+
+# Implementation
 
 SHAPE_SCORE = {
     'X': 1,
@@ -19,16 +22,29 @@ OUTCOME_SCORE = {
     ('C', 'Z'): 3, # scissors, scissors
 }
 
-def total_score(strategy: Tuple[Tuple[str, str]]) -> int:
-    return sum(map(_turn_score, strategy))
+def total_score(strategy: Iterable[Tuple[str, str]]) -> int:
+    return sum(map(turn_score, strategy))
 
-def _turn_score(turn: Tuple[str, str]) -> int:
+def turn_score(turn: Tuple[str, str]) -> int:
     return SHAPE_SCORE[turn[1]] + OUTCOME_SCORE[turn]
 
+def read_strategy(path: Path) -> Generator[Tuple[str, str], None, None]:
+    with open(path) as f:
+        for line in f:
+            yield tuple(line.rstrip().split())
+
+# Tests
+
+TEST_STRATEGY = (
+    ('A', 'Y'),
+    ('B', 'X'),
+    ('C', 'Z'),
+)
+
 def test_total_score():
-    strategy = (
-        ('A', 'Y'),
-        ('B', 'X'),
-        ('C', 'Z'),
-    )
-    assert total_score(strategy) == 15
+    assert total_score(TEST_STRATEGY) == 15
+
+def test_read_strategy():
+    path = Path('test_input.txt')
+    actual = tuple(read_strategy(path))
+    assert actual == TEST_STRATEGY
