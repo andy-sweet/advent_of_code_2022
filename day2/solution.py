@@ -87,12 +87,14 @@ def part1():
     strategy = read_strategy(path)
     score = total_score(strategy)
     print(f'part1: {score}')
+    assert score == 11841
 
 def part2():
     path = THIS_DIR / 'input.txt'
     strategy = read_strategy(path)
     score = elf_total_score(strategy)
     print(f'part2: {score}')
+    assert score == 13022
 
 def main():
     part1()
