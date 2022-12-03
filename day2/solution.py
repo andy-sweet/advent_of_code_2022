@@ -1,98 +1,149 @@
 import os
+from dataclasses import dataclass
+from enum import Enum, auto
 from pathlib import Path
 from typing import Generator, Iterable, Tuple
 
 THIS_DIR = Path(os.path.realpath(__file__)).parent
 
 # Implementation
+class Move(Enum):
+    ROCK = auto()
+    PAPER = auto()
+    SCISSORS = auto()
 
-SHAPE_SCORE = {
-    'X': 1,
-    'Y': 2,
-    'Z': 3,
+class Result(Enum):
+    LOSS = auto()
+    DRAW = auto()
+    WIN = auto()
+
+class Strategy(Enum):
+    YOUR = auto()
+    ELF = auto()
+
+MOVE_SCORE = {
+    Move.ROCK: 1,
+    Move.PAPER: 2,
+    Move.SCISSORS: 3,
 }
 
-GOAL_SCORE = {
-    'X': 0,
-    'Y': 3,
-    'Z': 6,
+RESULT_SCORE = {
+    Result.LOSS: 0,
+    Result.DRAW: 3,
+    Result.WIN: 6,
 }
 
-# opponent, you: score
-OUTCOME_SCORE = {
-    ('A', 'X'): 3, # rock, rock
-    ('A', 'Y'): 6, # rock, paper
-    ('A', 'Z'): 0, # rock, scissors
-    ('B', 'X'): 0, # paper, rock
-    ('B', 'Y'): 3, # paper, paper
-    ('B', 'Z'): 6, # paper, scissors
-    ('C', 'X'): 6, # scissors, rock
-    ('C', 'Y'): 0, # scissors, paper
-    ('C', 'Z'): 3, # scissors, scissors
-}
-
-# opponent, your goal: you
 YOUR_MOVE = {
-    ('A', 'X'): 'Z', # rock, lose => scissors
-    ('A', 'Y'): 'X', # rock, draw => rock
-    ('A', 'Z'): 'Y', # rock, win => paper
-    ('B', 'X'): 'X', # paper, lose => rock
-    ('B', 'Y'): 'Y', # paper, draw => paper
-    ('B', 'Z'): 'Z', # paper, win => scissors
-    ('C', 'X'): 'Y', # scissors, lose => paper
-    ('C', 'Y'): 'Z', # scissors, draw => scissors
-    ('C', 'Z'): 'X', # scissors, win => rock
+    'X': Move.ROCK,
+    'Y': Move.PAPER,
+    'Z': Move.SCISSORS,
 }
 
-def total_score(strategy: Iterable[Tuple[str, str]]) -> int:
-    return sum(map(turn_score, strategy))
+YOUR_RESULT = {
+    'X': Result.LOSS,
+    'Y': Result.DRAW,
+    'Z': Result.WIN,
+}
 
-def elf_total_score(strategy: Iterable[Tuple[str, str]]) -> int:
-    return sum(map(elf_score, strategy))
+THEIR_MOVE = {
+    'A': Move.ROCK,
+    'B': Move.PAPER,
+    'C': Move.SCISSORS,
+}
 
-def turn_score(turn: Tuple[str, str]) -> int:
-    return SHAPE_SCORE[turn[1]] + OUTCOME_SCORE[turn]
+BEATS = {
+    Move.ROCK: Move.SCISSORS,
+    Move.PAPER: Move.ROCK,
+    Move.SCISSORS: Move.PAPER,
+}
 
-def elf_score(turn: Tuple[str, str]) -> int:
-    return SHAPE_SCORE[YOUR_MOVE[turn]] + GOAL_SCORE[turn[1]]
+LOSES = {v: k for k, v in BEATS.items()}
 
-def read_strategy(path: Path) -> Generator[Tuple[str, str], None, None]:
+@dataclass
+class Turn:
+    them: Move
+    you: Move
+
+    def result(self) -> Result:
+        if self.you == self.them:
+            return Result.DRAW
+        if BEATS[self.you] == self.them:
+            return Result.WIN
+        return Result.LOSS
+
+    def score(self) -> int:
+        return MOVE_SCORE[self.you] + RESULT_SCORE[self.result()]
+
+    @classmethod
+    def from_line(cls, line: str, strategy: Strategy) -> 'Turn':
+        return cls.from_your_line(line) if strategy == Strategy.YOUR else cls.from_elf_line(line)
+
+    @classmethod
+    def from_your_line(cls, line: str) -> 'Turn':
+        parts = line.rstrip().split()
+        return cls(
+            them=THEIR_MOVE[parts[0]],
+            you=YOUR_MOVE[parts[1]],
+        )
+
+    @classmethod
+    def from_elf_line(cls, line: str) -> 'Turn':
+        parts = line.rstrip().split()
+        them = THEIR_MOVE[parts[0]]
+        result = YOUR_RESULT[parts[1]]
+        if result == Result.WIN:
+            you = LOSES[them]
+        elif result == Result.LOSS:
+            you = BEATS[them]
+        else:
+            you = them
+        return cls(them=them, you=you)
+
+def total_score(turns: Iterable[Turn]) -> int:
+    return sum(map(Turn.score, turns))
+
+def read_turns(path: Path, strategy: Strategy) -> Generator[Turn, None, None]:
     with open(path) as f:
         for line in f:
-            yield tuple(line.rstrip().split())
+            yield Turn.from_line(line, strategy) 
 
 # Tests
 
-TEST_STRATEGY = (
-    ('A', 'Y'),
-    ('B', 'X'),
-    ('C', 'Z'),
-)
-
-def test_total_score():
-    assert total_score(TEST_STRATEGY) == 15
-
-def test_elf_total_score():
-    assert elf_total_score(TEST_STRATEGY) == 12
-
-def test_read_strategy():
+def test_read_turns_with_your_strategy():
     path = THIS_DIR / 'test_input.txt'
-    actual = tuple(read_strategy(path))
-    assert actual == TEST_STRATEGY
+    actual = tuple(read_turns(path, Strategy.YOUR))
+    expected = (
+        Turn(them=Move.ROCK, you=Move.PAPER),
+        Turn(them=Move.PAPER, you=Move.ROCK),
+        Turn(them=Move.SCISSORS, you=Move.SCISSORS),
+    )
+    assert actual == expected
+    assert total_score(actual) == 15
+
+def test_read_turns_with_elf_strategy():
+    path = THIS_DIR / 'test_input.txt'
+    actual = tuple(read_turns(path, Strategy.ELF))
+    expected = (
+        Turn(them=Move.ROCK, you=Move.ROCK),
+        Turn(them=Move.PAPER, you=Move.ROCK),
+        Turn(them=Move.SCISSORS, you=Move.ROCK),
+    )
+    assert actual == expected
+    assert total_score(actual) == 12
 
 # Main
 
 def part1():
     path = THIS_DIR / 'input.txt'
-    strategy = read_strategy(path)
-    score = total_score(strategy)
+    turns = read_turns(path, Strategy.YOUR)
+    score = total_score(turns)
     print(f'part1: {score}')
     assert score == 11841
 
 def part2():
     path = THIS_DIR / 'input.txt'
-    strategy = read_strategy(path)
-    score = elf_total_score(strategy)
+    turns = read_turns(path, Strategy.ELF)
+    score = total_score(turns)
     print(f'part2: {score}')
     assert score == 13022
 
