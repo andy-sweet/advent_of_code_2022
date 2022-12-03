@@ -8,10 +8,9 @@ fun itemPriority(item: Char): Int {
 }
 
 fun priority(rucksack: String): Int {
-    val mid = rucksack.length / 2
-    val compartment1 = rucksack.substring(0, mid).toSet()
-    val compartment2 = rucksack.substring(mid).toSet()
-    val shared_item = compartment1.intersect(compartment2).single()
+    val mid_point = rucksack.length / 2
+    val compartments = rucksack.chunked(mid_point, {c -> c.toSet()})
+    val shared_item = compartments[0].intersect(compartments[1]).single()
     return itemPriority(shared_item)
 }
 
