@@ -52,12 +52,12 @@ THEIR_MOVE = {
 }
 
 BEATS = {
-    Move.ROCK: Move.SCISSORS,
-    Move.PAPER: Move.ROCK,
-    Move.SCISSORS: Move.PAPER,
+    Move.ROCK: Move.PAPER,
+    Move.PAPER: Move.SCISSORS,
+    Move.SCISSORS: Move.ROCK,
 }
 
-LOSES = {v: k for k, v in BEATS.items()}
+LOSES_TO = {v: k for k, v in BEATS.items()}
 
 @dataclass
 class Turn:
@@ -65,9 +65,9 @@ class Turn:
     you: Move
 
     def result(self) -> Result:
-        if self.you == self.them:
+        if self.them == self.you:
             return Result.DRAW
-        if BEATS[self.you] == self.them:
+        if self.them == LOSES_TO[self.you]:
             return Result.WIN
         return Result.LOSS
 
@@ -92,9 +92,9 @@ class Turn:
         them = THEIR_MOVE[parts[0]]
         result = YOUR_RESULT[parts[1]]
         if result == Result.WIN:
-            you = LOSES[them]
-        elif result == Result.LOSS:
             you = BEATS[them]
+        elif result == Result.LOSS:
+            you = LOSES_TO[them]
         else:
             you = them
         return cls(them=them, you=you)
