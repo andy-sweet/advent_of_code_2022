@@ -12,7 +12,7 @@ fun itemPriority(item: Char): Int {
 fun sharedItem(rucksack: String): Char {
     return rucksack
         .chunked(rucksack.length / 2, CharSequence::toSet)
-        .reduce {a, b -> a.intersect(b)}
+        .reduce(Set<Char>::intersect) 
         .single()
 }
 
@@ -26,8 +26,8 @@ fun prioritySum(filePath: String): Int {
 
 fun groupItem(rucksacks: List<String>): Char {
     return rucksacks
-        .map {rucksack -> rucksack.toSet()}
-        .reduce {a, b -> a.intersect(b)}
+        .map(String::toSet)
+        .reduce(Set<Char>::intersect) 
         .single()
 }
 
