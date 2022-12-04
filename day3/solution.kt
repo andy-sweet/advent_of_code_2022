@@ -22,8 +22,32 @@ fun prioritySum(filePath: String): Int {
     }
 }
 
+fun groupItem(rucksacks: List<String>): Char {
+    return rucksacks
+        .map {rucksack -> rucksack.toSet()}
+        .reduce {a, b -> a.intersect(b)}
+        .single()
+}
+
+fun groupPrioritySum(filePath: String): Int {
+    return File(filePath).useLines {lines -> lines
+        .chunked(3)
+        .map {rucksacks -> groupItem(rucksacks)}
+        .map {item -> itemPriority(item)}
+        .sum()
+    }
+}
+
 fun testPart1(filePath: String, expected: Int? = null) {
     val sum = prioritySum(filePath)
+    println("${filePath}: ${sum}")
+    if (expected != null) {
+        assert(sum == expected)
+    }
+}
+
+fun testPart2(filePath: String, expected: Int? = null) {
+    val sum = groupPrioritySum(filePath)
     println("${filePath}: ${sum}")
     if (expected != null) {
         assert(sum == expected)
@@ -35,6 +59,12 @@ fun part1() {
     testPart1("input.txt", 8252)
 }
 
+fun part2() {
+    testPart2("test_input.txt", 70)
+    testPart2("input.txt")
+}
+
 fun main() {
     part1()
+    part2()
 }
