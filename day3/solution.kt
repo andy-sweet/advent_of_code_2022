@@ -1,3 +1,5 @@
+// Implementation
+
 import java.io.File
 
 fun itemPriority(item: Char): Int {
@@ -16,8 +18,8 @@ fun sharedItem(rucksack: String): Char {
 
 fun prioritySum(filePath: String): Int {
     return File(filePath).useLines {lines -> lines
-        .map {rucksack -> sharedItem(rucksack)}
-        .map {item -> itemPriority(item)}
+        .map(::sharedItem)
+        .map(::itemPriority)
         .sum()
     }
 }
@@ -32,11 +34,13 @@ fun groupItem(rucksacks: List<String>): Char {
 fun groupPrioritySum(filePath: String): Int {
     return File(filePath).useLines {lines -> lines
         .chunked(3)
-        .map {rucksacks -> groupItem(rucksacks)}
-        .map {item -> itemPriority(item)}
+        .map(::groupItem)
+        .map(::itemPriority)
         .sum()
     }
 }
+
+// Tests
 
 fun testPart1(filePath: String, expected: Int? = null) {
     val sum = prioritySum(filePath)
@@ -54,6 +58,8 @@ fun testPart2(filePath: String, expected: Int? = null) {
     }
 }
 
+// Main
+
 fun part1() {
     testPart1("test_input.txt", 157)
     testPart1("input.txt", 8252)
@@ -61,7 +67,7 @@ fun part1() {
 
 fun part2() {
     testPart2("test_input.txt", 70)
-    testPart2("input.txt")
+    testPart2("input.txt", 2828)
 }
 
 fun main() {
