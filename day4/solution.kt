@@ -73,12 +73,12 @@ fun testPart2(filePath: String, expected: Int? = null) {
 
 fun part1() {
     testPart1("test_input.txt", 2)
-    testPart1("input.txt")
+    testPart1("input.txt", 431)
 }
 
 fun part2() {
     testPart2("test_input.txt", 4)
-    testPart2("input.txt")
+    testPart2("input.txt", 823)
 }
 
 fun main() {
